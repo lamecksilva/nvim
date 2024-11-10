@@ -1,59 +1,39 @@
-return { -- Autoformat
+return {
   "stevearc/conform.nvim",
-  dependencies = {
-    "mason.nvim",
-  },
-  event = { "BufWritePre" },
-  cmd = { "ConformInfo" },
-  keys = {
-    {
-      "<leader>cF",
-      function()
-        require("conform").format({
-          formatters = { "injected" },
-          timeout_ms = 3000,
-          async = true,
-          lsp_format = "fallback",
-        })
-      end,
-      mode = { "n", "v" },
-      desc = "[F]ormat Injected Langs",
-    },
-  },
-  init = function()
-    -- Install the conform formatter on VeryLazy
-    LazyVim.on_very_lazy(function()
-      LazyVim.format.register({
-        name = "conform.nvim",
-        priority = 100,
-        primary = true,
-        format = function(buf)
-          require("conform").format({ bufnr = buf })
-        end,
-        sources = function(buf)
-          local ret = require("conform").list_formatters(buf)
-          ---@param v conform.FormatterInfo
-          return vim.tbl_map(function(v)
-            return v.name
-          end, ret)
-        end,
-      })
-    end)
+  opts = function()
+    ---@type conform.setupOpts
+    local opts = {
+      default_format_opts = {
+        timeout_ms = 3000,
+        async = false, -- not recommended to change
+        quiet = false, -- not recommended to change
+        lsp_format = "fallback", -- not recommended to change
+      },
+      formatters_by_ft = {
+        lua = { "stylua" },
+        fish = { "fish_indent" },
+        sh = { "shfmt" },
+        ["python"] = { "black" }
+      },
+      -- The options you set here will be merged with the builtin formatters.
+      -- You can also define any custom formatters here.
+      ---@type table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride>
+      formatters = {
+        injected = { options = { ignore_errors = true } },
+        -- # Example of using dprint only when a dprint.json file is present
+        -- dprint = {
+        --   condition = function(ctx)
+        --     return vim.fs.find({ "dprint.json" }, { path = ctx.filename, upward = true })[1]
+        --   end,
+        -- },
+        --
+        -- # Example of using shfmt with extra args
+        -- shfmt = {
+        --
+        --   prepend_args = { "-i", "2", "-ci" },
+        -- },
+      },
+    }
+    return opts
   end,
-  opts = {
-    notify_on_error = false,
-    formatters_by_ft = {
-      lua = { "stylua" },
-      -- Conform will run multiple formatters sequentially
-      python = { "isort", "black" },
-      -- You can customize some of the format options for the filetype (:help conform.format)
-      rust = { "rustfmt", lsp_format = "fallback" },
-      -- Conform will run the first available formatter
-      typescript = { "eslint_d", "prettierd", "prettier", stop_after_first = true },
-
-      javascript = { "eslint_d", "prettierd", "prettier", stop_after_first = true },
-
-      java = { "uncrustify" },
-    },
-  },
 }

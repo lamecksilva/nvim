@@ -53,3 +53,5 @@ vim.opt.timeoutlen = 300
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.scrolloff = 10
+
+vim.g.lazyvim_python_lsp = "pyright"
