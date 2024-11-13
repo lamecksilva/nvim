@@ -67,4 +67,7 @@ require("lazy").setup({
       lazy = "💤 ",
     },
   },
+  opts = {
+    colorscheme = "catppuccin",
+  },
 })
